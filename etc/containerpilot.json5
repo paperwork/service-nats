@@ -11,8 +11,10 @@
       }{{ end }}
     },
     {
-      name: 'nats',
+      name: 'service-nats',
       port: 6222,
+      tags: [
+      ],
       exec: [
         'gnatsd',
         '-c', '/etc/gnatsd.conf'
@@ -61,7 +63,7 @@
   },
   watches: [
     {
-      name: 'nats',
+      name: 'service-nats',
       interval: 5
     }
   ]
