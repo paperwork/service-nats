@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk update \
- && apk add curl unzip bash jq ca-certificates sed \
+ && apk add curl unzip bash jq ca-certificates \
  && rm -rf /var/cache/apk/*
 
 
