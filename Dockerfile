@@ -8,8 +8,8 @@ RUN apk update \
 # Install Consul
 # Releases at https://releases.hashicorp.com/consul
 RUN set -ex \
-    && export CONSUL_VERSION=0.7.5 \
-    && export CONSUL_CHECKSUM=40ce7175535551882ecdff21fdd276cef6eaab96be8a8260e0599fadb6f1f5b8 \
+    && export CONSUL_VERSION=1.0.6 \
+    && export CONSUL_CHECKSUM=bcc504f658cef2944d1cd703eda90045e084a15752d23c038400cf98c716ea01 \
     && curl --retry 7 --fail -vo /tmp/consul.zip "https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip" \
     && echo "${CONSUL_CHECKSUM}  /tmp/consul.zip" | sha256sum -c \
     && unzip /tmp/consul -d /usr/local/bin \
@@ -23,8 +23,8 @@ RUN set -ex \
 # Install Consul template
 # Releases at https://releases.hashicorp.com/consul-template/
 RUN set -ex \
-    && export CONSUL_TEMPLATE_VERSION=0.19.0 \
-    && export CONSUL_TEMPLATE_CHECKSUM=31dda6ebc7bd7712598c6ac0337ce8fd8c533229887bd58e825757af879c5f9f \
+    && export CONSUL_TEMPLATE_VERSION=0.19.4 \
+    && export CONSUL_TEMPLATE_CHECKSUM=5f70a7fb626ea8c332487c491924e0a2d594637de709e5b430ecffc83088abc0 \
     && curl --retry 7 --fail -Lso /tmp/consul-template.zip "https://releases.hashicorp.com/consul-template/${CONSUL_TEMPLATE_VERSION}/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip" \
     && echo "${CONSUL_TEMPLATE_CHECKSUM}  /tmp/consul-template.zip" | sha256sum -c \
     && unzip /tmp/consul-template.zip -d /usr/local/bin \
