@@ -1,17 +1,27 @@
 #!/bin/bash
 
+consul() {
+    export CONSUL_AGENT_BIND_ADDR=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
+    echo "Exported CONSOUL_AGENT_BIND_ADDR to $CONSUL_AGENT_BIND_ADDR ..."
+
+    /usr/local/bin/consul agent \
+        -bind=$CONSUL_AGENT_BIND_ADDR \
+        -advertise=$CONSUL_AGENT_BIND_ADDR \
+        -data-dir=/data \
+        -config-dir=/config \
+        -log-level=info \
+        -rejoin \
+        -retry-join=$CONSUL_SERVER \
+        -retry-max=10 \
+        -retry-interval=10s
+}
+
 onStart() {
     logDebug "onStart"
 
-    waitForLeader
-
+    logDebug "Running consul-template ..."
     if [[ ! -f /etc/gnatsd.conf ]]; then
-        CONSUL_HOST=${CONSUL}
-        if [[ $CONSUL_AGENT -eq 1 ]]; then
-          logDebug "Using consul agent"
-          CONSUL_HOST="localhost"
-        fi
-        consul-template -consul-addr=$CONSUL_HOST:8500 -once -template=/etc/gnatsd.conf.tmpl:/etc/gnatsd.conf
+        consul-template -consul-addr=localhost:8500 -once -template=/etc/gnatsd.conf.tmpl:/etc/gnatsd.conf
         if [[ $? != 0 ]]; then
             exit 1
         fi
@@ -21,7 +31,7 @@ onStart() {
 onChange() {
     logDebug "onChange"
 
-    consul-template -consul-addr=$CONSUL_HOST:8500 -once -template=/etc/gnatsd.conf.tmpl:/etc/gnatsd.conf
+    consul-template -consul-addr=localhost:8500 -once -template=/etc/gnatsd.conf.tmpl:/etc/gnatsd.conf
     pkill -SIGHUP gnatsd
 }
 
@@ -35,34 +45,10 @@ health() {
     fi
 }
 
-waitForLeader() {
-    logDebug "Waiting for consul server"
-    local tries=0
-    while true
-    do
-        logDebug "Waiting for consul server"
-        tries=$((tries + 1))
-        local server=$(consul members -status alive | grep server)
-        if [[ -n "$server" ]]; then
-            break
-        elif [[ $tries -eq 60 ]]; then
-            echo "No consul server"
-            exit 1
-        fi
-        sleep 1
-    done
-}
-
 logDebug() {
     if [[ "${LOG_LEVEL}" == "DEBUG" ]]; then
         echo "manage: $*"
     fi
-}
-
-help() {
-    echo "Usage: ./manage.sh onStart        => first-run configuration"
-    echo "       ./manage.sh onChange       => reload configuration"
-    echo "       ./manage.sh health         => health check NATS"
 }
 
 until

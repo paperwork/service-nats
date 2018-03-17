@@ -1,5 +1,5 @@
 {
-  consul: 'service-discovery:8500',
+  consul: 'localhost:8500',
   jobs: [
     {
       name: 'preStart',
@@ -12,8 +12,6 @@
     {
       name: 'service-nats',
       port: 6222,
-      tags: [
-      ],
       exec: [
         'gnatsd',
         '-c', '/etc/gnatsd.conf'
@@ -31,15 +29,7 @@
     },
     {
       name: 'consul-agent',
-      exec: ['/usr/local/bin/consul', 'agent',
-                  '-bind=$(ip addr show eth0 | grep "inet\b" | awk \'{print $2}\' | cut -d/ -f1)',
-                  '-data-dir=/data',
-                  '-config-dir=/config',
-                  '-log-level=err',
-                  '-rejoin',
-                  '-retry-join', 'service-discovery',
-                  '-retry-max', '10',
-                  '-retry-interval', '10s'],
+      exec: '/usr/local/bin/manage.sh consul',
       health: {
         exec: 'curl -so /dev/null http://localhost:8500',
         interval: 10,
@@ -58,7 +48,8 @@
   ],
   telemetry: {
     port: 9090,
-    interfaces: ['eth1', 'eth0', 'eth0[1]', 'lo', 'lo0', 'inet']
+    interfaces: ['eth0', 'eth0[1]', 'lo', 'lo0', 'inet'],
+    tags: []
   },
   watches: [
     {
