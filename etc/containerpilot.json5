@@ -32,6 +32,7 @@
     {
       name: 'consul-agent',
       exec: ['/usr/local/bin/consul', 'agent',
+                  '-bind=\'{{ GetInterfaceIP "eth0" }}\'',
                   '-data-dir=/data',
                   '-config-dir=/config',
                   '-log-level=err',
