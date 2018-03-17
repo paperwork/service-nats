@@ -32,12 +32,12 @@
     {
       name: 'consul-agent',
       exec: ['/usr/local/bin/consul', 'agent',
-                  '-bind=\'{{ GetInterfaceIP "eth0" }}\'',
+                  '-bind=$(ip addr show eth0 | grep "inet\b" | awk \'{print $2}\' | cut -d/ -f1)',
                   '-data-dir=/data',
                   '-config-dir=/config',
                   '-log-level=err',
                   '-rejoin',
-                  '-retry-join', '{{ .CONSUL | default "service-discovery" }}',
+                  '-retry-join', 'service-discovery',
                   '-retry-max', '10',
                   '-retry-interval', '10s'],
       health: {
