@@ -3,12 +3,11 @@
   jobs: [
     {
       name: 'preStart',
-      exec: '/usr/local/bin/manage.sh onStart'
-      {{ if .CONSUL_AGENT }},
+      exec: '/usr/local/bin/manage.sh onStart',
       when: {
         source: 'consul-agent',
         once: 'healthy'
-      }{{ end }}
+      }
     },
     {
       name: 'service-nats',
@@ -29,7 +28,7 @@
         once: 'exitSuccess'
       },
       restarts: 'unlimited'
-    },{{ if .CONSUL_AGENT }}
+    },
     {
       name: 'consul-agent',
       exec: ['/usr/local/bin/consul', 'agent',
@@ -37,7 +36,7 @@
                   '-config-dir=/config',
                   '-log-level=err',
                   '-rejoin',
-                  '-retry-join', '{{ .CONSUL | default "consul" }}',
+                  '-retry-join', '{{ .CONSUL | default "service-discovery" }}',
                   '-retry-max', '10',
                   '-retry-interval', '10s'],
       health: {
@@ -47,7 +46,6 @@
       },
       restarts: 'unlimited'
     },
-    {{ end }}
     {
       name: 'nats-onchange',
       exec: '/usr/local/bin/manage.sh onChange',
