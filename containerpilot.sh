@@ -1,19 +1,13 @@
 #!/bin/bash
 
+export PATH=/usr/local/bin:$PATH
+
 consul() {
     export CONSUL_AGENT_BIND_ADDR=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
     echo "Exported CONSOUL_AGENT_BIND_ADDR to $CONSUL_AGENT_BIND_ADDR ..."
 
-    /usr/local/bin/consul agent \
-        -bind=$CONSUL_AGENT_BIND_ADDR \
-        -advertise=$CONSUL_AGENT_BIND_ADDR \
-        -data-dir=/data \
-        -config-dir=/config \
-        -log-level=info \
-        -rejoin \
-        -retry-join=$CONSUL_SERVER \
-        -retry-max=10 \
-        -retry-interval=10s
+    wait-for-http.sh http://$CONSUL_SERVER:8500
+    run-consul-agent.sh $CONSUL_AGENT_BIND_ADDR $CONSUL_SERVER
 }
 
 onStart() {
@@ -40,14 +34,14 @@ health() {
 
     /usr/bin/curl -o /dev/null --fail -s http://127.0.0.1:8222/varz
     if [[ $? -ne 0 ]]; then
-        echo "NATS monitor endpoint failed"
+        echo "Service monitor endpoint failed"
         exit 1
     fi
 }
 
 logDebug() {
     if [[ "${LOG_LEVEL}" == "DEBUG" ]]; then
-        echo "manage: $*"
+        echo "containerpilot.sh: $*"
     fi
 }
 
