@@ -12,8 +12,8 @@ RUN chmod 500 /usr/local/bin/containerpilot.sh
 ########### Service related ###########
 
 # Add NATS
-ENV GNATSD_VERSION=1.0.6 \
-    GNATSD_CHECKSUM=019ee2170feb68504d1d15e4959cd2dbabbd6cd1
+ENV GNATSD_VERSION=1.2.0 \
+    GNATSD_CHECKSUM=c544891f510fe3afc3b1eae90ee7c26adafca845
 RUN curl -Lso /tmp/gnatsd.zip "https://github.com/nats-io/gnatsd/releases/download/v${GNATSD_VERSION}/gnatsd-v${GNATSD_VERSION}-linux-amd64.zip" \
  && echo "${GNATSD_CHECKSUM}  /tmp/gnatsd.zip" | sha1sum -c \
  && unzip -j /tmp/gnatsd.zip -d /tmp
